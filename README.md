@@ -138,7 +138,18 @@ if joystick[1].getDown(22):
   #flaps switch is down
 ````
 
-You could test for 'flaps switch is in the middle' by combining these, but the point is there is no specific event fired when the flaps switch (or any other toggle) is in its 'normally off' position.  Contrast that with throttle.toggles.toggle_name() that always returns a value.
+You could test for 'flaps switch is in the middle' by combining these, but the point is there is no specific event fired when the flaps switch (or any other toggle) is in its 'normally off' position.  Contrast that with throttle.toggles.toggle_name() that always returns a value.  So the NamedControllers equivalent to the above would be:
+
+````python
+if throttle.toggles.flaps()=='UP':
+  #flaps switch is up
+  
+if throttle.toggles.flaps()=='M/R':
+  #flaps switch is in the middle
+  
+if throttle.toggles.flaps()=='DN':
+  #flaps switch is down
+````  
 
 **State Names**
 
