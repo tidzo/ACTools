@@ -110,7 +110,8 @@ stick.buttons.thumbtrigger.activatedNow()
 if stick.buttons.trigger():		
 	keyboard.setPressed(Key.F)
 
-#send one single keypress of the letter g for each press and release of the thumb trigger (big red button on top of warthog stick)
+#send one single keypress of the letter g for each press and release of the thumb trigger 
+#(the big red button on top of warthog stick)
 if stick.buttons.thumbtrigger.activatedOnce():
 	keyboard.setPressed(Key.G)
 
