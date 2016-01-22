@@ -18,14 +18,14 @@ That's fine until you get a stick with tons of buttons - like the Warthog.  Reme
 ```python
 throttle=namedcontrollers.WarthogThrottle()
 
-if throttle.toggles.eac=='ARM' and throttle.toggles.rdr=='NRM' and throttle.buttons.autopilot():
+if throttle.toggles.eac()=='ARM' and throttle.toggles.rdr()=='NRM' and throttle.buttons.autopilot():
   
   #eject
   keyboard.setPressed(Key.LeftAlt)
   keyboard.setPressed(Key.L)
 ```
 
-(If the 'EAC' toggle switch is set to 'ARM' (up), AND the 'RDR' toggle switch is set to 'NRM' (up), AND the 'Autopilot engage/disengage button is pressed, then emulate pressng LeftAlt plus L (the default eject key in [Star Citizen](https://robertsspaceindustries.com/enlist?referral=STAR-DLML-6LDN) (*referral link*).
+(If the 'EAC' toggle switch is set to 'ARM' (up), AND the 'RDR' toggle switch is set to 'NRM' (up), AND the 'Autopilot engage/disengage button is pressed, then emulate pressng LeftAlt plus L (the default eject key in [Star Citizen](https://robertsspaceindustries.com/enlist?referral=STAR-DLML-6LDN) (*referral link*) )
 
 This project currently provides named buttons, toggles, axes and hat switches for the TM Warthog flight stick and throttle.  I will be adding support for my TM Hotas-X shortly, and guidance on adding support for other controls is below.
 
