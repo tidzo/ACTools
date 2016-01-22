@@ -56,10 +56,10 @@ if starting:
 ####accessing controls
 All of the controls are accessible under one of
 
-* throttle.buttons.<button_name>()
-* throttle.toggles.<switch_name>()
-* throttle.axes.<axis_name>()
-* throttle.hats.<hat_name>()
+* throttle.buttons.button_name()
+* throttle.toggles.switch_name()
+* throttle.axes.axis_name()
+* throttle.hats.hat_name()
 
 (and the same for the stick, although it has no toggles)
 
@@ -67,7 +67,7 @@ Note the () in each case.  While there might be a way around that (using python'
 
 ####Buttons
 
-Calling throttle.buttons.<button_name>() will return True if that button is currently pressed, and False if not.
+Calling throttle.buttons.button_name() will return True if that button is currently pressed, and False if not.
 Future documentation updates will include a table of defined buttons here, but for now, examine namedcontrollers.py and see where the buttons are listed in definition of the WarthogThrottle class.  
 
 **example:**
@@ -81,12 +81,12 @@ Note that:
 1. It's perfectly possible for the same button to have multiple names
 2. Some controls are listed as buttons but *also* as toggles.
 3. You can define your own button names easily, without necessarily editing namedcontrollers.py - just subclass NamedController or one of its subclasses (you'll need to take care of calling parent initializers though)
-4. Some buttons look like 'hats', but aren't implemented as a POV hat when you view them in joy.cpl.  For example, the Warthog Throttle's 'micswitch' (the hat that falls under the user's left thumb at the top) is actually buttons 2,3,4,5 and 6.  throttle.hats.<hat_name>() is only for 'real' hats.
+4. Some buttons look like 'hats', but aren't implemented as a POV hat when you view them in joy.cpl.  For example, the Warthog Throttle's 'micswitch' (the hat that falls under the user's left thumb at the top) is actually buttons 2,3,4,5 and 6.  throttle.hats.hat_name() is only for 'real' hats.  I'm planning a better abstraction for this in a future update.
 
 
 ####Toggles
 
-Calling throttle.toggles.<toggle_name>() will return a string that represents the current state of that switch.
+Calling throttle.toggles.toggle_name() will return a string that represents the current state of that switch.
 **example:**
 ````python
 diagnostics.watch(throttle.toggles.eac() ) # Shows 'ARM' or 'OFF' in the FreePIE Watch window
@@ -103,7 +103,7 @@ if joystick[1].getDown(22):
   #flaps switch is down
 ````
 
-You could test for 'flaps switch is in the middle' by combining these, but the point is there is no specific event fired when the flaps switch (or any other toggle) is in its 'normally off' position.  Contrast that with throttle.toggles.<toggle_name>() that always returns a value.
+You could test for 'flaps switch is in the middle' by combining these, but the point is there is no specific event fired when the flaps switch (or any other toggle) is in its 'normally off' position.  Contrast that with throttle.toggles.toggle_name() that always returns a value.
 
 
 
