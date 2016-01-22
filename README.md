@@ -85,6 +85,37 @@ Note that:
 3. You can define your own button names easily, without necessarily editing namedcontrollers.py - just subclass NamedController or one of its subclasses (you'll need to take care of calling parent initializers though)
 4. Some buttons look like 'hats', but aren't implemented as a POV hat when you view them in joy.cpl.  For example, the Warthog Throttle's 'micswitch' (the hat that falls under the user's left thumb at the top) is actually buttons 2,3,4,5 and 6.  throttle.hats.hat_name() is only for 'real' hats.  I'm planning a better abstraction for this in a future update.
 
+**Once vs Continuous Presses**
+
+throttle.buttons.button_name() is exactly equivalent to joystick[id].getDown(id_number_of_that_button).  This means that it will return True continuously while the button is pressed.  Sometimes that is what you want, and sometimes it isn't.
+FreePIE provides a .getPressed() method which will return True exactly once for each specific press of the button.  The NamedControls extensions lets you access this method conveniently as controller.buttons.button_name.getPressed() and, because
+I thought 'pressed' was potentially ambiguous (is it pressed now, or was it pressed then, or...?), I also defined an alias of 'activatedOnce() for getPressed(), and 'activatedNow()' for 'getDown()'.  
+This also helps for readabilty, for example if you have a switch like 'hat1_up' - hat1_up.activatedNow() is less confuising than hat1_up.getDown()!
+
+````python
+#These are identical - returning True only once for each button press:
+stick.buttons.thumbtrigger.getPressed()
+stick.buttons.thumbtrigger.activatedOnce()
+joystick[id_of_that_controller].getPressed(id_number_of_that_button)
+
+#and these are identical - returning True continuously while the button is held down:
+stick.buttons.thumbtrigger()
+stick.buttons.thumbtrigger.getDown()
+stick.buttons.thumbtrigger.down()
+stick.buttons.thumbtrigger.activatedNow()
+
+#usage example:
+
+#send keypress of letter f as long as joystick main trigger is held down
+if stick.buttons.trigger():		
+	keyboard.setPressed(Key.F)
+
+#send one single keypress of the letter g for each press and release of the thumb trigger (big red button on top of warthog stick)
+if stick.buttons.thumbtrigger.activatedOnce():
+	keyboard.setPressed(Key.G)
+
+````
+
 
 ####Toggles
 
@@ -142,11 +173,27 @@ class WarthogThrottle(NamedController):
 
 When you call thottle.toggles.apu() , the system examines this definition, and tests whether button index 20 is pressed or not.  If it is, it returns the first item  in the list of strings for that button - ['START','UP'], so in this case it will return 'START'.
 
-If you call throttle.toggles.apu(1), it will instead return the *second* item (item index 1 in the list), which is 'UP'.
+If you call throttle.toggles.apu(1), it will instead return the *second* item (item index 1 in the list), which is 'UP'.  A future update will include a mechanism to specify which item in the lists should be the default when you instantiate the controller.
 
 ####Axes
 
+throttle.axes.left() will return the current value of the left-hand side of the throttle pair.  Similarly .right() for the other side, and the mouse nub is available as .x() and .y() (and also under the aliases slew_x() and scx() ).
+
+Some controls look like an axis but are in fact implemented as a 'slider'.  These controls might look different in joy.cpl.  They are available in FreePIE as joystick[id].sliders[slider_id],
+but in this extension they work just like the other axes.  The slider on the right hand side of the Warthog throttle is accessible as throttle.axes.slider() - but the word slider there is just because that's what I've named it
+in the definition of the WarthogThrottle class, not because it's 'a slider', if you see what I mean!
+
+
 ####Hats
+
+throttle.hats.hat_name() will return a string representation of the current position of the specified POV hat, as a direction such as "up" or "down_and_left".  
+Note that this only works for controls that appear as a hat in joy.cpl - 
+in the case of the Warthog, both the stick and throttle have several 'hat' type controls which are not mapped in this way, and they will (currently) not be accessible under this .hats.hat_name() interface.  (That could be added easily in future)
+
+
+###Configuration
+A full configuration guide will be available soon, but in the mean time it should be easy to infer how controls are mapped by examining the static class definitions of NamedController, WarthogStick and WarthogThrottle in namedcontrollers.py.
+
   
 
 
