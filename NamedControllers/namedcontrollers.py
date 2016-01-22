@@ -32,11 +32,6 @@ class NamedController(object):
 		
 			
 
-	def OLDgetNamedHat(self,name):
-		hatDefinition=self.hats[name]
-		return NamedHat(controller=self.controller, name=name, definition=hatDefinition)
-
-
 class ControlFactory(object):
 	
 	def __init__(self,parent=None, controlType='', controlTypeDefinition='', targetClassName='',):
