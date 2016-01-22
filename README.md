@@ -1,9 +1,10 @@
 # Advanced Controller Tools
-Tools for users of game controllers with many buttons and toggles, such as the Thrustmaster Warthog.  
+Tools for users of game controllers with many buttons and toggles, such as the Thrustmaster Warthog.
 
 ## 1. Named Controllers for FreePIE
 
-[FreePIE](http://andersmalmgren.github.io/FreePIE/) is  a programmable input emulator.  You can do stuff like this:
+###Introduction
+[FreePIE](http://andersmalmgren.github.io/FreePIE/) is  a programmable input emulator which is lets you do stuff like this:
 
 ```python
 myStick = joystick[0]
@@ -17,7 +18,7 @@ That's fine until you get a stick with tons of buttons - like the Warthog.  Reme
 ```python
 throttle=namedcontrollers.WarthogThrottle()
 
-if throttle.toggles.eac=='ARM' and throttle.toggles.rdr=='NRM' and throttle.buttons.autopilot:
+if throttle.toggles.eac=='ARM' and throttle.toggles.rdr=='NRM' and throttle.buttons.autopilot():
   
   #eject
   keyboard.setPressed(Key.LeftAlt)
@@ -25,3 +26,84 @@ if throttle.toggles.eac=='ARM' and throttle.toggles.rdr=='NRM' and throttle.butt
 ```
 
 (If the 'EAC' toggle switch is set to 'ARM' (up), AND the 'RDR' toggle switch is set to 'NRM' (up), AND the 'Autopilot engage/disengage button is pressed, then emulate pressng LeftAlt plus L (the default eject key in [Star Citizen](https://robertsspaceindustries.com/enlist?referral=STAR-DLML-6LDN) (*referral link*).
+
+This project currently provides named buttons, toggles, axes and hat switches for the TM Warthog flight stick and throttle.  I will be adding support for my TM Hotas-X shortly, and guidance on adding support for other controls is below.
+
+###Installation
+
+1. Install [FreePIE](http://andersmalmgren.github.io/FreePIE/)
+2. Copy namedcontrollers.py from this project to the 'pylib' folder of your FreePIE installation.  For me, that means **c:\Program Files (x86)\FreePIE\pylib**, but YMMV.  
+3. Launch FreePIE and load one of the files in the examples directory of this project.
+
+###Usage
+
+Currently, FreePIE needs to know the ID of each joystick to be able to work with it.  You can discover this ID by looking in Windows' Game Controllers control panel (joy.cpl).  The first item listed should normally be accessible in FreePIE as **joystick[0]**.  The third item would be **joystick[2]**.  This is likely to change in a future version, as discussed in [this forum post](http://www.mtbs3d.com/phpBB/viewtopic.php?f=139&t=21709&sid=766538289af1a35823338d9521f3b706) but for now, you need to hardcode that ID I'm afraid.
+
+####boilerplate
+Your FreePIE script needs to include something like this at the beginning:
+
+````python
+if starting:
+  import namedcontrollers
+  
+  stickID=0
+  throttleID=1
+  
+  stick=namedcontrollers.WarthogStick(joystick[stickID])
+  thottle=namedcontrollers.WarthogThrottle(joystick[throttleID])
+````
+
+####accessing controls
+All of the controls are accessible under one of
+
+* throttle.buttons.<button_name>()
+* throttle.toggles.<switch_name>()
+* throttle.axes.<axis_name>()
+* throttle.hats.<hat_name>()
+
+(and the same for the stick, although it has no toggles)
+
+Note the () in each case.  While there might be a way around that (using python's magic methods), that doesn't seem to work in the FreePIE diagnostics.
+
+####Buttons
+
+Calling throttle.buttons.<button_name>() will return True if that button is currently pressed, and False if not.
+Future documentation updates will include a table of defined buttons here, but for now, examine namedcontrollers.py and see where the buttons are listed in definition of the WarthogThrottle class.  
+
+**example:**
+````python
+diagnostics.watch(throttle.buttons.micswitch_push() )   #Shows 'True' or 'False' in the FreePIE Watch window
+diagnostics.watch(throttle.buttons.autopilot_engage_disengage() )
+
+````
+
+Note that: 
+1. It's perfectly possible for the same button to have multiple names
+2. Some controls are listed as buttons but *also* as toggles.
+3. You can define your own button names easily, without necessarily editing namedcontrollers.py - just subclass NamedController or one of its subclasses (you'll need to take care of calling parent initializers though)
+4. Some buttons look like 'hats', but aren't implemented as a POV hat when you view them in joy.cpl.  For example, the Warthog Throttle's 'micswitch' (the hat that falls under the user's left thumb at the top) is actually buttons 2,3,4,5 and 6.  throttle.hats.<hat_name>() is only for 'real' hats.
+
+
+####Toggles
+
+Calling throttle.toggles.<toggle_name>() will return a string that represents the current state of that switch.
+**example:**
+````python
+diagnostics.watch(throttle.toggles.eac() ) # Shows 'ARM' or 'OFF' in the FreePIE Watch window
+diagnostics.watch(throttle.toggles.flaps() ) # Shows 'UP', 'M/R' or 'DN'
+````
+
+The key benefit of using the .toggles is that a result is given even when the underlying button is not pressed.  For example, if you were monitoring the Flaps switch using vanilla FreePIE, you would get the values like this:
+
+````python
+if joystick[1].getDown(21):
+  #flaps switch is up
+  
+if joystick[1].getDown(22):
+  #flaps switch is down
+````
+
+You could test for 'flaps switch is in the middle' by combining these, but the point is there is no specific event fired when the flaps switch (or any other toggle) is in its 'normally off' position.  Contrast that with throttle.toggles.<toggle_name>() that always returns a value.
+
+
+
