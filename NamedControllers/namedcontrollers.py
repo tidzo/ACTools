@@ -1,5 +1,7 @@
 import functools
 import sys
+import time
+clockstart=time.clock()
 
 class MockController(object):
 	def getDown(self, id):
@@ -96,10 +98,111 @@ class NamedButton(NamedControl):
 		self.getDown=functools.partial(controller.getDown,self.zeroIndexedButtonID)
 		self.down=self.getDown
 		self.activatedNow=self.getDown
-
-	def getValue(self):
+		
+		#populate the initial value of the button
+		self.durationOfMostRecentPressedState=0
+		self.durationOfMostRecentReleasedState=0
+		self.duration=0
+		self.timePressed=0
+		self.timeReleased=0
+		self.timeStateChanged=0
+		
+		self.timeNow=time.clock()
+		self.downPreviously=self.controller.getDown(self.zeroIndexedButtonID)
+		downNow=self.downPreviously
+		
+		if downNow:
+			#button is held down at time of object initialisation
+			self.timePressed=self.timeNow
+		else:
+			self.timeReleased=self.timeNow
+		
+		
+	def _getRawCurrentValue(self):
 		return self.controller.getDown(self.zeroIndexedButtonID)
+	
+	def getTimeInCurrentState(self):
+		currentValue=self._getRawCurrentValue()
+		if currentValue == self.lastValue:
+			pass
+		
+			
+		
+	def getValue(self):
+		downNow=self._getRawCurrentValue()
+		timeNow=time.clock()
+		
+		if downNow and self.downPreviously:
+			#STILL_PRESSED
+			pass
+				
+		if downNow and not self.downPreviously:
+			#JUST_PRESSED
+			#JUST_PRESSED
+			self._onPressed(timeNow)
+			
+		if not downNow and self.downPreviously:
+			#JUST_RELEASED
+			self._onReleased(timeNow)
+			
+		if not downNow and self.downPreviously==False:
+			#STILL_RELEASED
+			pass
+						
+		self.downPreviously=downNow
+		
+		return downNow
 
+		
+		
+		
+	def _onPressed(self,timeNow):
+		self.timePressed=timeNow
+		self.timeStateChanged=timeNow
+		self.durationOfMostRecentReleasedState=timeNow-self.timeReleased	
+		
+	def _onReleased(self,timeNow):
+		self.timeReleased=timeNow
+		self.timeStateChanged=timeNow
+		self.durationOfMostRecentPressedState=timeNow-self.timePressed
+
+	
+	def getTimeSinceLastStateChange(self):
+		timeNow=time.clock()
+		timeSinceLastStateChange=timeNow-self.timeStateChanged
+		
+		return timeSinceLastStateChange
+	
+	def getTimeSinceLastPress(self):
+		timeNow=time.clock()
+		timeSinceLastPress=timeNow-self.timePressed
+		return timeSinceLastPress
+		
+	def getTimeSinceLastRelease(self):
+		timeNow=time.clock()
+		timeSinceLastRelease=timeNow-self.timeReleased
+		return timeSinceLastRelease
+		
+	
+	def getDurationOfMostRecentPressedState(self):
+		return self.durationOfMostRecentPressedState
+		
+	def getDurationOfMostRecentReleasedState(self):
+		return self.durationOfMostRecentReleasedState
+		
+	def pressedFor(self,duration):
+		if self._getRawCurrentValue()==False and self.getDurationOfMostRecentPressedState() > duration:
+			return True
+		else:
+			return False
+			
+	def heldFor(self,duration):
+		if self._getRawCurrentValue()==True and self.getTimeSinceLastStateChange() > duration:
+			return True
+		else:
+			return False
+		
+	
 	def __call__(self):
 		return self.getValue()
 		
@@ -340,8 +443,7 @@ class WarthogThrottle(NamedController):
 	hats={
 			
 		
-		'coolie':
-			{
+		'coolie':{
 			 'type': 'POV',
 			 'index': 0,
 			  
@@ -359,8 +461,7 @@ class WarthogThrottle(NamedController):
 			 }
 			},
 			
-		'mic':
-			{
+		'mic': {
 			'type': 'BUTTONS',
 			'positions' :{
 				0: 'OFF', 
@@ -369,12 +470,21 @@ class WarthogThrottle(NamedController):
 				4: 'FORWARDS',
 				5: 'DOWN',
 				6: 'BACKWARDS'
+			},
+		},
+		'china':{
+			'type': 'BUTTONS',
+			'positions': {
+				0: 'MIDDLE',
+				11: 'FORWARDS',
+				12: 'BACKWARDS',
+				},
+		
+			
 			}
 		}
-}
+	
 
-		
-				 
 
 
 		
