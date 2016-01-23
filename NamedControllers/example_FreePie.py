@@ -8,8 +8,6 @@ if starting:
 	throttle = namedcontrollers.WarthogThrottle(joystick[throttleID])
 	stick = namedcontrollers.WarthogStick(joystick[stickID])
 
-diagnostics.watch(throttle.buttons.apu )
-
 diagnostics.watch(throttle.toggles.apu() )
 diagnostics.watch(throttle.toggles.eac() )
 diagnostics.watch(throttle.toggles.eng_fuel_l() )
@@ -21,6 +19,9 @@ diagnostics.watch(throttle.axes.slider() )
 
 diagnostics.watch(throttle.hats.coolie() )
 diagnostics.watch(throttle.hats.coolie.getRawValue() )
+
+diagnostics.watch(throttle.hats.mic() )
+diagnostics.watch(throttle.hats.mic.getRawValue() )
 
 if stick.buttons.trigger():
 	keyboard.setPressed(Key.F)

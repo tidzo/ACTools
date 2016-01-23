@@ -12,7 +12,7 @@ class MockController(object):
 class NamedController(object):
 
 	#This maps plural, 'friendly' class names to real class names
-	controlTypesMap={'buttons':'NamedButton', 'toggles':'NamedToggle', 'axes':'NamedAxis', 'hats':'NamedHat' }
+	controlTypesMap={'buttons':'NamedButton', 'toggles':'NamedToggle', 'axes':'NamedAxis', 'hats':'HatFactory' }
 	
 	
 	
@@ -53,8 +53,18 @@ class ControlFactory(object):
 		
 		return newControl
 
-		
-		
+class HatFactory(object):
+
+	#note this is __new__ and not __init__
+	def __new__(self,parent=None,controller=None, controlType='', definition='', name='',):
+		if definition['type'].upper()=='POV':
+			return NamedPOVHat(parent=parent, controller=controller, controlType=controlType, definition=definition, name=name)
+		else:
+			#the 'positions' item in the button hat's definition is equivalent to a NamedToggle's definition, so we send that and use the same (subclassed) code to make the Control object.
+			positionsDefinition=definition['positions']
+			return NamedButtonHat(parent=parent, controller=controller, controlType=controlType, definition=positionsDefinition, name=name)
+
+			
 class NamedControl(object):
 	def __init__(self,parent=None,controller=None, controlType='', definition='', name='',):
 		self.parent=parent
@@ -111,29 +121,42 @@ class NamedToggle(NamedControl):
 		
 		
 		#FIXME trap button name not found
-		
-	def getState(self,namingStrategy=''):
-		if namingStrategy == '':
-			namingStrategy=self.defaultNamingStrategy
-			namingIndex=self.defaultNamingIndex
-		else:
-			namingIndex=self.namingStrategies[namingStrategy.upper()]
+
+	def getRawValue(self):
 		
 		for friendlyButtonID in sorted(self.definition.keys(), reverse=True):
 			if friendlyButtonID!=0:
 				zeroIndexedButtonID=friendlyButtonID-1
 				if self.controller.getDown(zeroIndexedButtonID):
-					return self.definition[friendlyButtonID][namingIndex]
-					
+					return friendlyButtonID
+						
 			else:
 				#if we've reached 0, none of the buttons defined as possible states for this toggle were pushed, so we can return the 'unpushed' state name
-				return self.definition[0][namingIndex]
+				return 0
+	
 	
 	def getValue(self,namingStrategy=''):
-		return self.getState(namingStrategy)
+		if namingStrategy == '':
+			namingStrategy=self.defaultNamingStrategy
+			namingIndex=self.defaultNamingIndex
+		else:
+			namingIndex=self.namingStrategies[namingStrategy.upper()]
+
+		friendlyButtonID = self.getRawValue()
 		
+		possibleReturnValues=self.definition[friendlyButtonID]
+		if isinstance(possibleReturnValues,list):
+				
+			#FIXME check namingIndex is valid
+			return possibleReturnValues[namingIndex]
+		else:
+			#if not a list, just return the value.
+			return possibleReturnValues
+						
+					
 	def __call__(self,namingStrategy=''):
 		return self.getValue(namingStrategy)
+		
 		
 class NamedAxis(NamedControl):
 
@@ -168,8 +191,7 @@ class NamedAxis(NamedControl):
 		return self.getValue()
 		
 
-
-class NamedHat(NamedControl):
+class NamedPOVHat(NamedControl):
 	friendlyClassName='hat'
 	def __init__(self,parent=None,controller=None, controlType='', definition='', name='',):
 		self.parent=parent
@@ -190,6 +212,11 @@ class NamedHat(NamedControl):
 		
 	def __call__(self):
 		return self.getValue()
+
+
+#Hat switches are often implemented as collections of 		
+class NamedButtonHat(NamedToggle):
+	friendlyClassName='hat'
 		
 
 class WarthogThrottle(NamedController):
@@ -303,16 +330,39 @@ class WarthogThrottle(NamedController):
 		
 	hats={
 			
-	    'coolie': 	
+		
+		'coolie':
 			{
+			 'type': 'POV',
 			 'index': 0,
-			 'positions':
-
-				#left and right are from perspective of user operating this hat with their left index finger
-				{-1: 'off', 0: 'up', 4500: 'up_and_right', 9000: 'right', 13500: 'down_and_right', 18000: 'down',
-				 22500:'down_and_left', 27000:'left', 31500:'up_and_left'}
+			  
+			 #left and right are from perspective of user operating this hat with their left index finger
+			 'positions': {
+				-1: 	'OFF',
+				 0: 	'UP',
+				 4500: 	'UP_AND_RIGHT',
+				 9000:  'RIGHT',
+				13500:  'DOWN_AND_RIGHT',
+				18000:  'DOWN',
+				22500:  'DOWN_AND_LEFT',
+				27000:  'LEFT',
+				31500:  'UP_AND_LEFT',
+			 }
+			},
+			
+		'mic':
+			{
+			'type': 'BUTTONS',
+			'positions' :{
+				0: 'OFF', 
+				2: 'PUSHED',
+				3: 'UP',
+				4: 'FORWARDS',
+				5: 'DOWN',
+				6: 'BACKWARDS'
 			}
 		}
+}
 
 		
 				 
