@@ -106,8 +106,8 @@ class NamedButton(NamedControl):
 		
 
 
-class NamedToggle(NamedControl):
-	friendlyClassName='toggle'
+class NamedButtonGroup(NamedControl):
+	friendlyClassName='buttongroup'
 	def __init__(self,parent=None,controller=None,controlType='', definition='', name='',):
 		self.parent=parent
 		self.controller=controller
@@ -156,7 +156,9 @@ class NamedToggle(NamedControl):
 					
 	def __call__(self,namingStrategy=''):
 		return self.getValue(namingStrategy)
+
 		
+	
 		
 class NamedAxis(NamedControl):
 
@@ -214,8 +216,15 @@ class NamedPOVHat(NamedControl):
 		return self.getValue()
 
 
-#Hat switches are often implemented as collections of 		
-class NamedButtonHat(NamedToggle):
+#Toggles and ButtonHats are subclases of a NamedButtonGroup. 
+#I might add extra features in future such as tracking changes over time - this is where they would be implemented
+class NamedToggle(NamedButtonGroup):
+	friendlyClassName='toggle'
+			
+		
+#Hat switches are often implemented as a group of buttons of which only one can be pressed, 
+#rather than a degree-based hat control	- that is best represented as a ButtonGroup
+class NamedButtonHat(NamedButtonGroup):
 	friendlyClassName='hat'
 		
 
