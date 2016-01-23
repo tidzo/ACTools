@@ -127,8 +127,12 @@ stick.buttons.trigger.getTimeSinceLastPress()
 stick.buttons.trigger.getTimeSinceLastRelease()
 stick.buttons.trigger.getDurationOfMostRecentPressedState()
 stick.buttons.trigger.getDurationOfMostRecentReleasedState()
-stick.buttons.trigger.pressedFor(3) 	# returns True if the most recent press was for 3 seconds or more (and the button is NOT currently pressed)
-stick.buttons.trigger.heldFor(5) 		# returns True if the most recent press was for 3 seconds or more (and the button IS not currently pressed)
+
+stick.buttons.trigger.pressedFor(3) 	# returns True if the most recent press was for 3 seconds or more 
+										# (and the button is NOT currently pressed)
+										
+stick.buttons.trigger.heldFor(5) 		# returns True if the most recent press was for 3 seconds or more 
+										#(and the button IS not currently pressed)
 ````
 
 Future work will expand, clarify and rename these facilities, and perhaps eventually expand them to cover toggles and hat switches.
