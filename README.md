@@ -137,6 +137,14 @@ stick.buttons.trigger.heldFor(5) 		# returns True if the most recent press was f
 
 Future work will expand, clarify and rename these facilities, and perhaps eventually expand them to cover toggles and hat switches.
 
+#####'Morse' checking
+
+````python
+if throttle.buttons.autopilot.checkMorseLog('...---...'):
+    #eject
+````
+
+Every button press is recorded as either a dot or a dash to an internal log.  (Currently if a press lasts longer than 0.5s, it's a dash).  The .checkMorseLog() function returns True if the supplied string matches the most recent button presses.  It is envisaged that this mechanism will allow intuitive configuration of complex short/long press arrangements in user scripts.
 
 ####Toggles
 
