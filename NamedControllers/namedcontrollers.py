@@ -1,6 +1,8 @@
 import functools
 import sys
+import collections
 import time
+
 clockstart=time.clock()
 
 class MockController(object):
@@ -107,15 +109,27 @@ class NamedButton(NamedControl):
 		self.timeReleased=0
 		self.timeStateChanged=0
 		
+		logLength=20 #how many press/release timing data items to keep in the history
+		historyLength=20 #how many press/release timing data items to keep in the history
+		
+		self.log=collections.deque(maxlen=logLength)
+		self.history=collections.deque(maxlen=historyLength)
+		self.pressDurationsLog=collections.deque(maxlen=logLength)
+		self.releaseDurationsLog=collections.deque(maxlen=logLength)
+		
 		self.timeNow=time.clock()
 		self.downPreviously=self.controller.getDown(self.zeroIndexedButtonID)
 		downNow=self.downPreviously
+		
+		
 		
 		if downNow:
 			#button is held down at time of object initialisation
 			self.timePressed=self.timeNow
 		else:
 			self.timeReleased=self.timeNow
+		
+
 		
 		
 	def _getRawCurrentValue(self):
@@ -138,7 +152,6 @@ class NamedButton(NamedControl):
 				
 		if downNow and not self.downPreviously:
 			#JUST_PRESSED
-			#JUST_PRESSED
 			self._onPressed(timeNow)
 			
 		if not downNow and self.downPreviously:
@@ -154,18 +167,54 @@ class NamedButton(NamedControl):
 		return downNow
 
 		
+	def _writeToLog(self,event='',time=0.0):	#event=PRESS | RELEASE
+		if event.upper().startswith('P'):
+			eventCode=1
+		else:
+			eventCode=0
+		self.log.append( (eventCode, time) )
+		
+	def _writeToHistory(self, event='', duration=0.0 ):
+		if event.upper().startswith('P'):
+			eventCode=1
+			self.pressDurationsLog.append(duration)
+		else:
+			eventCode=0
+			self.releaseDurationsLog.append(duration)
+		self.history.append( (eventCode, duration) )
 		
 		
 	def _onPressed(self,timeNow):
 		self.timePressed=timeNow
 		self.timeStateChanged=timeNow
-		self.durationOfMostRecentReleasedState=timeNow-self.timeReleased	
+		self.durationOfMostRecentReleasedState=timeNow-self.timeReleased
+		self._writeToLog('PRESS',timeNow)
+		self._writeToHistory('RELEASED',self.durationOfMostRecentReleasedState)
 		
 	def _onReleased(self,timeNow):
 		self.timeReleased=timeNow
 		self.timeStateChanged=timeNow
 		self.durationOfMostRecentPressedState=timeNow-self.timePressed
+		self._writeToLog('RELEASED',timeNow)
+		self._writeToHistory('PRESS',self.durationOfMostRecentPressedState)
+		
+	def getLog(self):
+		return self.log
+		
+	def getHistory(self):
+		return self.history
+		
+	def getPressesLog(self):
+		if len(self.pressDurationsLog)>0:
+			return self.pressDurationsLog[-1]
+		else:
+			return False
 
+	def getReleasesLog(self):
+		if len(self.releaseDurationsLog)>0:
+			return self.releaseDurationsLog[-1]
+		else:
+			return False
 	
 	def getTimeSinceLastStateChange(self):
 		timeNow=time.clock()

@@ -51,5 +51,9 @@ diagnostics.watch(throttle.buttons.autopilot.heldFor(10) )
 
 diagnostics.watch(throttle.buttons.eac() )
 diagnostics.watch(throttle.buttons.eac.getTimeSinceLastStateChange() )
+diagnostics.watch(throttle.buttons.eac.getLog())
+diagnostics.watch(throttle.buttons.eac.getPressesLog() )
+diagnostics.watch(throttle.buttons.eac.getReleasesLog() )
+
 
 #TODO include all named buttons and toggles here for completeness
