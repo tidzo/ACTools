@@ -44,6 +44,9 @@ diagnostics.watch(throttle.buttons.autopilot.getTimeSinceLastPress() )
 
 diagnostics.watch(throttle.buttons.autopilot.pressedFor(3) )
 diagnostics.watch(throttle.buttons.autopilot.heldFor(10) )
+diagnostics.watch(throttle.buttons.eac.printMorseLog() )
+
+diagnostics.watch(throttle.buttons.eac.checkMorseLog('...') )
 
 
 
@@ -55,5 +58,9 @@ diagnostics.watch(throttle.buttons.eac.getLog())
 diagnostics.watch(throttle.buttons.eac.getPressesLog() )
 diagnostics.watch(throttle.buttons.eac.getReleasesLog() )
 
-
+if len(throttle.buttons.eac.pressDurationsLog)>3 and throttle.buttons.eac.pressDurationsLog[-3]>1 and throttle.buttons.eac.pressDurationsLog[-2]>1 and throttle.buttons.eac.pressDurationsLog[-1]>1:
+	foo=True
+else:
+	foo=False
+diagnostics.watch(foo)
 #TODO include all named buttons and toggles here for completeness

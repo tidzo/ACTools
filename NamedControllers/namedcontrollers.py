@@ -116,11 +116,13 @@ class NamedButton(NamedControl):
 		self.history=collections.deque(maxlen=historyLength)
 		self.pressDurationsLog=collections.deque(maxlen=logLength)
 		self.releaseDurationsLog=collections.deque(maxlen=logLength)
+		self.morseLog=collections.deque(maxlen=logLength)
 		
 		self.timeNow=time.clock()
 		self.downPreviously=self.controller.getDown(self.zeroIndexedButtonID)
 		downNow=self.downPreviously
 		
+		self.dashDuration=0.5
 		
 		
 		if downNow:
@@ -183,6 +185,33 @@ class NamedButton(NamedControl):
 			self.releaseDurationsLog.append(duration)
 		self.history.append( (eventCode, duration) )
 		
+	def _writeToMorseLog(self,duration=0.0):
+		if duration>self.dashDuration:
+			self.morseLog.append('-')
+		else:
+			self.morseLog.append('.')
+			
+	def printMorseLog(self):
+		result=''
+		for i in range(0, len(self.morseLog)):
+			result+=self.morseLog[i]
+			
+		return result
+			
+					
+	def checkMorseLog(self,message):
+		messageLength=len(message)
+		if messageLength>len(self.morseLog):
+			return False
+			
+		for i in range(0,messageLength):
+			index=messageLength-i
+			if message[i] != self.morseLog[0-index]:
+				return False
+				
+		return True
+			
+		
 		
 	def _onPressed(self,timeNow):
 		self.timePressed=timeNow
@@ -191,12 +220,14 @@ class NamedButton(NamedControl):
 		self._writeToLog('PRESS',timeNow)
 		self._writeToHistory('RELEASED',self.durationOfMostRecentReleasedState)
 		
+		
 	def _onReleased(self,timeNow):
 		self.timeReleased=timeNow
 		self.timeStateChanged=timeNow
 		self.durationOfMostRecentPressedState=timeNow-self.timePressed
 		self._writeToLog('RELEASED',timeNow)
 		self._writeToHistory('PRESS',self.durationOfMostRecentPressedState)
+		self._writeToMorseLog(self.durationOfMostRecentPressedState)
 		
 	def getLog(self):
 		return self.log
@@ -250,7 +281,8 @@ class NamedButton(NamedControl):
 			return True
 		else:
 			return False
-		
+	
+	
 	
 	def __call__(self):
 		return self.getValue()
