@@ -131,7 +131,7 @@ stick.buttons.trigger.getDurationOfMostRecentReleasedState()
 stick.buttons.trigger.pressedFor(3) 	# returns True if the most recent press was for 3 seconds or more 
 										# (and the button is NOT currently pressed)
 										
-stick.buttons.trigger.heldFor(5) 		# returns True if the most recent press was for 3 seconds or more 
+stick.buttons.trigger.heldFor(5) 		# returns True if the most recent press was for 5 seconds or more 
 										#(and the button IS not currently pressed)
 ````
 
