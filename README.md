@@ -85,7 +85,7 @@ Note that:
 3. You can define your own button names easily, without necessarily editing namedcontrollers.py - just subclass NamedController or one of its subclasses (you'll need to take care of calling parent initializers though)
 4. Some buttons look like 'hats', but aren't implemented as a POV hat when you view them in joy.cpl.  For example, the Warthog Throttle's 'micswitch' (the hat that falls under the user's left thumb at the top) is actually buttons 2,3,4,5 and 6.  throttle.hats.hat_name() is only for 'real' hats.  I'm planning a better abstraction for this in a future update.
 
-**Once vs Continuous Presses**
+#####Once vs Continuous Presses
 
 throttle.buttons.button_name() is exactly equivalent to joystick[id].getDown(id_number_of_that_button).  This means that it will return True continuously while the button is pressed.  Sometimes that is what you want, and sometimes it isn't.
 FreePIE provides a .getPressed() method which will return True exactly once for each specific press of the button.  The NamedControls extensions lets you access this method conveniently as controller.buttons.button_name.getPressed() and, because
@@ -117,7 +117,7 @@ if stick.buttons.thumbtrigger.activatedOnce():
 
 ````
 
-**Timing of Presses**
+#####Timing of Presses
 
 Some basic work has been done on exposing the length of time that a button is pressed, held or released.  This needs significant work (not least with better naming) but as a taster of what is to come, the following will work so far:
 
@@ -171,7 +171,7 @@ if throttle.toggles.flaps()=='DN':
   #flaps switch is down
 ````  
 
-**State Names**
+#####State Names
 
 By default if you call throttle.toggles.toggle_name(), the string that is returned will be the text that is physically printed on the stick next to that toggle position.  For example, if you call throttle.toggles.engine_left_fuel() , you will get either "NORM" or 'OVERRIDE".  
 
@@ -187,7 +187,7 @@ if thottle.toggles.apu(1) == 'UP':
   #equivalent to the above
 ````
 
-**Implementation Detail**
+#####Implementation Detail
 
 The toggles are configured (by me, you shouldn't have to change this)  in the class definition, which looks like this:
 
