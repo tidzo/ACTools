@@ -109,11 +109,13 @@ class NamedButton(NamedControl):
 		self.timeReleased=0
 		self.timeStateChanged=0
 		
+		#bad things will happen with stuff like checkMorseLog() if these numbers are too low!
 		logLength=20 #how many press/release timing data items to keep in the history
 		historyLength=20 #how many press/release timing data items to keep in the history
 		
 		self.log=collections.deque(maxlen=logLength)
 		self.history=collections.deque(maxlen=historyLength)
+		self.pressTimesLog=collections.deque(maxlen=logLength)
 		self.pressDurationsLog=collections.deque(maxlen=logLength)
 		self.releaseDurationsLog=collections.deque(maxlen=logLength)
 		self.morseLog=collections.deque(maxlen=logLength)
@@ -172,6 +174,7 @@ class NamedButton(NamedControl):
 	def _writeToLog(self,event='',time=0.0):	#event=PRESS | RELEASE
 		if event.upper().startswith('P'):
 			eventCode=1
+			self.pressTimesLog.append(time)
 		else:
 			eventCode=0
 		self.log.append( (eventCode, time) )
@@ -199,7 +202,7 @@ class NamedButton(NamedControl):
 		return result
 			
 					
-	def checkMorseLog(self,message):
+	def checkMorseLog(self,message,duration=10,once=True):
 		messageLength=len(message)
 		if messageLength>len(self.morseLog):
 			return False
@@ -209,6 +212,20 @@ class NamedButton(NamedControl):
 			if message[i] != self.morseLog[0-index]:
 				return False
 				
+		if duration:
+			#we need to check that the first press occurred no more than <duration> ago
+			relevantPressIndex=0-messageLength
+			relevantPressTime=self.pressTimesLog[relevantPressIndex]
+			timeNow=time.clock()
+			if timeNow-relevantPressTime > duration:
+				return False
+		
+		#We have a match
+		
+		if once:
+			#Prevent looping
+			self.morseLog[-1]='X'
+
 		return True
 			
 		
